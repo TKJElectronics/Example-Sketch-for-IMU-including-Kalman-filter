@@ -1,0 +1,3 @@
+ -Xms64m -Xmx512m
+Graph
+Graph.jar,core.jar,RXTXcomm.jar,serial.jar
