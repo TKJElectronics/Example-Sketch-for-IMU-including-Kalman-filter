@@ -1,0 +1,7 @@
+The code is released under the GNU General Public License.
+Developed by Kristian Lauszus.
+
+This is the Processing application I made to visualize the data sent from the Arduino.
+
+Precompiled version for Linux, Mac OS X and Windows can be found in the folders found in this directory.
+

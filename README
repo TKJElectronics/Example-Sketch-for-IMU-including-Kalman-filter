@@ -3,6 +3,8 @@ Developed by Kristian Lauszus.
 
 This is the firmware for the my guide at the Arduino forum (http://arduino.cc/forum/index.php/topic,58048.0.html), including a Processing application (see /Graph) to visualize the data sent from the Arduino.
 
-The code is developed for the "IMU Analog Combo Board Razor - 6DOF Ultra-Thin IMU" from Sparkfun (http://www.sparkfun.com/products/10010), but the code can easily be ported to any analog or digital IMU.
+The code is developed for the "IMU Analog Combo Board Razor - 6DOF Ultra-Thin IMU" from Sparkfun (http://www.sparkfun.com/products/10010), but the code can easily be ported to any analog IMU. The firmware can be found in the folder /IMU6DOF/Analog_IMU.
+
+There is also firmware for a digital IMU featuring a ITG3205 and a ADXL345. The firmware can be found in the folder /IMU6DOF/Digital_IMU.
 
 For more information see the guide: http://arduino.cc/forum/index.php/topic,58048.0.html or send us an email at support@tkjelectronics.dk.
