@@ -68,28 +68,25 @@ void i2cWrite(uint8_t address, uint8_t registerAddress, uint8_t data){
   Wire.write(data);
   Wire.endTransmission();
 }
-uint8_t i2cRead(int address, uint8_t registerAddress) {
-  uint8_t data;  
+uint8_t* i2cRead(uint8_t address, uint8_t registerAddress, uint8_t nbytes) {
+  uint8_t data[nbytes];  
   Wire.beginTransmission(address);
   Wire.write(registerAddress);
   Wire.endTransmission();  
   Wire.beginTransmission(address);
-  Wire.requestFrom(address, 1);
-  data = Wire.read();
+  Wire.requestFrom(address, nbytes);
+  for(uint8_t i = 0; i < nbytes; i++)
+    data[i] = Wire.read();
   Wire.endTransmission();  
   return data;
 }
 int readGyroX() { // This really measures the y-axis of the gyro
-  int data;
-  data = i2cRead(gyroAddress, 0x1F)<<8;
-  data |= i2cRead(gyroAddress,0x20);      
-  return data;
+  uint8_t* data = i2cRead(gyroAddress, 0x1F,2);    
+  return ((data[0] << 8) | data[1]);
 }
 int readGyroY() { // This really measures the x-axis of the gyro
-  int data;
-  data = i2cRead(gyroAddress, 0x1D)<<8;
-  data |= i2cRead(gyroAddress,0x1E);      
-  return data;
+  uint8_t* data = i2cRead(gyroAddress, 0x1D,2);     
+  return ((data[0] << 8) | data[1]);
 }
 double getXangle() {
   double accXval = (double)readAccX()-zeroValue[0];
@@ -104,20 +101,14 @@ double getYangle() {
   return angle;
 }
 int readAccX() {
-  int data;
-  data = i2cRead(adxlAddress, 0x32);
-  data |= i2cRead(adxlAddress,0x33)<<8;      
-  return data;
+  uint8_t* data = i2cRead(adxlAddress, 0x32,2);     
+  return (data[0] | (data[1] << 8));
 }
 int readAccY() {
-  int data;
-  data = i2cRead(adxlAddress, 0x34);
-  data |= i2cRead(adxlAddress,0x35)<<8;      
-  return data;
+  uint8_t* data = i2cRead(adxlAddress, 0x34,2);     
+  return (data[0] | (data[1] << 8));
 }
 int readAccZ() {
-  int data;
-  data = i2cRead(adxlAddress, 0x36);
-  data |= i2cRead(adxlAddress,0x37)<<8;      
-  return data;
+  uint8_t* data = i2cRead(adxlAddress, 0x36,2);     
+  return (data[0] | (data[1] << 8));
 }
