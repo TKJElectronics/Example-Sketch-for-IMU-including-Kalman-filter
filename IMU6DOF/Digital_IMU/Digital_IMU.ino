@@ -3,7 +3,7 @@
 #define gyroAddress 0x68
 #define adxlAddress 0x53
 
-double zeroValue[5] = {-200, 44, 660, -18.5, 52.3}; // Found by experimenting
+double zeroValue[5] = {-200, 44, 660, 52.3, -18.5}; // Found by experimenting
 
 /* All the angles start at 180 degrees */
 double gyroXangle = 180;
@@ -27,11 +27,11 @@ void setup() {
   timer = micros();
 }
 
-void loop() {
-  double gyroXrate = (((double)readGyroX()-zeroValue[3])/14.375);
+void loop() {    
+  double gyroXrate = -(((double)readGyroX()-zeroValue[3])/14.375);
   gyroXangle += gyroXrate*((double)(micros()-timer)/1000000); // Without any filter
   
-  double gyroYrate = -(((double)readGyroY()-zeroValue[4])/14.375);
+  double gyroYrate = (((double)readGyroY()-zeroValue[4])/14.375);
   gyroYangle += gyroYrate*((double)(micros()-timer)/1000000); // Without any filter
   
   double accXangle = getXangle();
@@ -79,16 +79,16 @@ uint8_t i2cRead(int address, uint8_t registerAddress) {
   Wire.endTransmission();  
   return data;
 }
-int readGyroX(void) {
-  int data;
-  data = i2cRead(gyroAddress, 0x1D)<<8;
-  data |= i2cRead(gyroAddress,0x1E);      
-  return data;
-}
-int readGyroY(void) {
+int readGyroX() { // This really measures the y-axis of the gyro
   int data;
   data = i2cRead(gyroAddress, 0x1F)<<8;
   data |= i2cRead(gyroAddress,0x20);      
+  return data;
+}
+int readGyroY() { // This really measures the x-axis of the gyro
+  int data;
+  data = i2cRead(gyroAddress, 0x1D)<<8;
+  data |= i2cRead(gyroAddress,0x1E);      
   return data;
 }
 double getXangle() {
@@ -103,19 +103,19 @@ double getYangle() {
   double angle = (atan2(accYval,accZval)+PI)*RAD_TO_DEG;
   return angle;
 }
-int readAccX(void) {
+int readAccX() {
   int data;
   data = i2cRead(adxlAddress, 0x32);
   data |= i2cRead(adxlAddress,0x33)<<8;      
   return data;
 }
-int readAccY(void) {
+int readAccY() {
   int data;
   data = i2cRead(adxlAddress, 0x34);
   data |= i2cRead(adxlAddress,0x35)<<8;      
   return data;
 }
-int readAccZ(void) {
+int readAccZ() {
   int data;
   data = i2cRead(adxlAddress, 0x36);
   data |= i2cRead(adxlAddress,0x37)<<8;      
