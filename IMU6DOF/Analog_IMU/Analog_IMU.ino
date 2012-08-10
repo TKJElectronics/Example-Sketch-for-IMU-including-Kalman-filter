@@ -48,15 +48,15 @@ void setup() {
 }
 
 void loop() {
-  double gyroXrate = -((analogRead(gY)-zeroValue[0])/1.0323); // (gyroXadc-gryoZeroX)/Sensitivity - in quids - Sensitivity = 0.00333/3.3*1023=1.0323
+  double gyroXrate = -((analogRead(gX)-zeroValue[0])/1.0323); // (gyroXadc-gryoZeroX)/Sensitivity - in quids - Sensitivity = 0.00333/3.3*1023=1.0323
   gyroXangle += gyroXrate*((double)(micros()-timer)/1000000); // Without any filter
   
-  double gyroYrate = -((analogRead(gY)-zeroValue[1])/1.0323); // (gyroXadc-gryoZeroX)/Sensitivity - in quids - Sensitivity = 0.00333/3.3*1023=1.0323
-  gyroYangle += gyroYrate*((double)(micros()-timer)/1000000); // Without any filter
+  double gyroYrate = -((analogRead(gY)-zeroValue[1])/1.0323);
+  gyroYangle += gyroYrate*((double)(micros()-timer)/1000000);
 
   /*
-  double gyroZrate = -((analogRead(gY)-zeroValue[2])/1.0323); // (gyroXadc-gryoZeroX)/Sensitivity - in quids - Sensitivity = 0.00333/3.3*1023=1.0323
-  gyroZangle += gyroZrate*((double)(micros()-timer)/1000000); // Without any filter
+  double gyroZrate = -((analogRead(gZ)-zeroValue[2])/1.0323);
+  gyroZangle += gyroZrate*((double)(micros()-timer)/1000000);
   Serial.println(gyroZangle); // This is the yaw
   */
     
