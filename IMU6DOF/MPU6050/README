@@ -2,4 +2,4 @@ The code is released under the GNU General Public License.
 Developed by Kristian Lauszus.
 
 This is the firmware for the digital IMU MPU-6050 from InvenSense (http://invensense.com/mems/gyro/mpu6050.html)
-You will need the Kalman filter library I wrote as well: https://github.com/TKJElectronics/KalmanFilter
+"Kalman.h" is from the Kalman filter library I wrote: https://github.com/TKJElectronics/KalmanFilter
