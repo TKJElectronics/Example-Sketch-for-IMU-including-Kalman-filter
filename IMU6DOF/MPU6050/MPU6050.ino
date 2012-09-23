@@ -31,6 +31,12 @@ void setup() {
   Serial.begin(115200);
   Wire.begin();  
   i2cWrite(0x6B,0x00); // Disable sleep mode  
+  if(i2cRead(0x75,1)[0] != IMUAddress) { // Read "WHO_AM_I" register
+    Serial.print(F("MPU-6050 with address 0x"));
+    Serial.print(IMUAddress,HEX);
+    Serial.println(F(" is not connected"));
+    while(1);
+  }      
   kalmanX.setAngle(180); // Set starting angle
   kalmanY.setAngle(180);
   timer = micros();
