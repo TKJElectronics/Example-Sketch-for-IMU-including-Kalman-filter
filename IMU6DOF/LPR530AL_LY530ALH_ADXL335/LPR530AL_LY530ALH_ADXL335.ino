@@ -1,4 +1,25 @@
-// made by Kristian Lauszus - see http://arduino.cc/forum/index.php/topic,58048.0.html for information
+/* Copyright (C) 2012 Kristian Lauszus, TKJ Electronics. All rights reserved.
+ 
+ This software may be distributed and modified under the terms of the GNU
+ General Public License version 2 (GPL2) as published by the Free Software
+ Foundation and appearing in the file GPL2.TXT included in the packaging of
+ this file. Please note that GPL2 Section 2[b] requires that all works based
+ on this software must also be made publicly available under the terms of
+ the GPL2 ("Copyleft").
+ 
+ Contact information
+ -------------------
+ 
+ Kristian Lauszus, TKJ Electronics
+ Web      :  http://www.tkjelectronics.com
+ e-mail   :  kristianl@tkjelectronics.com
+ */
+
+#include "Kalman.h" // Source: https://github.com/TKJElectronics/KalmanFilter
+
+Kalman kalmanX;
+Kalman kalmanY;
+
 #define gX A0
 #define gY A1
 #define gZ A2
@@ -44,6 +65,8 @@ void setup() {
   zeroValue[5] /= 100;
   zeroValue[5] -= 102.3; // Z value is -1g when facing upwards - Sensitivity = 0.33/3.3*1023=102.3  
   
+  kalmanX.setAngle(180); // Set starting angle
+  kalmanY.setAngle(180);
   timer = micros(); // start timing
 }
 
@@ -73,8 +96,8 @@ void loop() {
   /* You might have to tune the filters to get the best values */
   compAngleX = (0.98*(compAngleX+(gyroXrate*(double)(micros()-timer)/1000000)))+(0.02*(accXangle)); 
   compAngleY = (0.98*(compAngleY+(gyroYrate*(double)(micros()-timer)/1000000)))+(0.02*(accYangle));
-  double xAngle = kalmanX(accXangle, gyroXrate, (double)(micros()-timer));
-  double yAngle = kalmanY(accYangle, gyroYrate, (double)(micros()-timer));
+  double xAngle = kalmanX.getAngle(accXangle, gyroXrate, (double)(micros()-timer));
+  double yAngle = kalmanY.getAngle(accYangle, gyroYrate, (double)(micros()-timer));
   
   timer = micros(); // reset timing
   

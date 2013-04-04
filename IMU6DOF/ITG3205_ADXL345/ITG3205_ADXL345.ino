@@ -1,4 +1,25 @@
+/* Copyright (C) 2012 Kristian Lauszus, TKJ Electronics. All rights reserved.
+ 
+ This software may be distributed and modified under the terms of the GNU
+ General Public License version 2 (GPL2) as published by the Free Software
+ Foundation and appearing in the file GPL2.TXT included in the packaging of
+ this file. Please note that GPL2 Section 2[b] requires that all works based
+ on this software must also be made publicly available under the terms of
+ the GPL2 ("Copyleft").
+ 
+ Contact information
+ -------------------
+ 
+ Kristian Lauszus, TKJ Electronics
+ Web      :  http://www.tkjelectronics.com
+ e-mail   :  kristianl@tkjelectronics.com
+ */
+
 #include <Wire.h>
+#include "Kalman.h" // Source: https://github.com/TKJElectronics/KalmanFilter
+
+Kalman kalmanX;
+Kalman kalmanY;
 
 #define gyroAddress 0x68
 #define adxlAddress 0x53
@@ -24,6 +45,8 @@ void setup() {
   i2cWrite(gyroAddress,0x16,0x1A); // this puts your gyro at +-2000deg/sec  and 98Hz Low pass filter
   i2cWrite(gyroAddress,0x15,0x09); // this sets your gyro at 100Hz sample rate
 
+  kalmanX.setAngle(180); // Set starting angle
+  kalmanY.setAngle(180);
   timer = micros();
 }
 
@@ -40,8 +63,8 @@ void loop() {
   compAngleX = (0.93*(compAngleX+(gyroXrate*(double)(micros()-timer)/1000000)))+(0.07*accXangle);
   compAngleY = (0.93*(compAngleY+(gyroYrate*(double)(micros()-timer)/1000000)))+(0.07*accYangle);
   
-  double xAngle = kalmanX(accXangle, gyroXrate, (double)(micros() - timer)); // calculate the angle using a Kalman filter
-  double yAngle = kalmanY(accYangle, gyroYrate, (double)(micros() - timer)); // calculate the angle using a Kalman filter
+  double xAngle = kalmanX.getAngle(accXangle, gyroXrate, (double)(micros() - timer)); // calculate the angle using a Kalman filter
+  double yAngle = kalmanY.getAngle(accYangle, gyroYrate, (double)(micros() - timer)); // calculate the angle using a Kalman filter
   
   timer = micros();
   
