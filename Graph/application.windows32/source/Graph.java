@@ -1,20 +1,18 @@
 import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
 
 import processing.serial.*; 
 
-import java.applet.*; 
-import java.awt.Dimension; 
-import java.awt.Frame; 
-import java.awt.event.MouseEvent; 
-import java.awt.event.KeyEvent; 
-import java.awt.event.FocusEvent; 
-import java.awt.Image; 
-import java.io.*; 
-import java.net.*; 
-import java.text.*; 
-import java.util.*; 
-import java.util.zip.*; 
-import java.util.regex.*; 
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
 
 public class Graph extends PApplet {
 
@@ -283,7 +281,12 @@ public void drawAxisY() {
     kalmanY[i-1] = kalmanY[i];
 }    
 
-  static public void main(String args[]) {
-    PApplet.main(new String[] { "--bgcolor=#FFFFFF", "Graph" });
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "Graph" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
   }
 }
