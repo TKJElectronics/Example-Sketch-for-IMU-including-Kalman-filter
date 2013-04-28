@@ -18,61 +18,75 @@
 #include <Wire.h>
 #include "Kalman.h" // Source: https://github.com/TKJElectronics/KalmanFilter
 
-Kalman kalmanX;
+Kalman kalmanX; // Create the Kalman instances
 Kalman kalmanY;
 
-const uint8_t IMUAddress = 0x68;
-
 /* IMU Data */
-int16_t accX;
-int16_t accY;
-int16_t accZ;
+int16_t accX, accY, accZ;
 int16_t tempRaw;
-int16_t gyroX;
-int16_t gyroY;
-int16_t gyroZ;
+int16_t gyroX, gyroY, gyroZ;
 
-double accXangle; // Angle calculate using the accelerometer
-double accYangle;
-double temp;
-double gyroXangle = 180; // Angle calculate using the gyro
-double gyroYangle = 180;
-double compAngleX = 180; // Calculate the angle using a Kalman filter
-double compAngleY = 180;
-double kalAngleX; // Calculate the angle using a Kalman filter
-double kalAngleY;
+double accXangle, accYangle; // Angle calculate using the accelerometer
+double temp; // Temperature
+double gyroXangle, gyroYangle; // Angle calculate using the gyro
+double compAngleX, compAngleY; // Calculate the angle using a complementary filter
+double kalAngleX, kalAngleY; // Calculate the angle using a Kalman filter
 
 uint32_t timer;
+uint8_t i2cData[14]; // Buffer for I2C data
 
 void setup() {  
   Serial.begin(115200);
-  Wire.begin();  
-  i2cWrite(0x6B,0x00); // Disable sleep mode  
-  if(i2cRead(0x75,1)[0] != 0x68) { // Read "WHO_AM_I" register
-    Serial.print(F("MPU-6050 with address 0x"));
-    Serial.print(IMUAddress,HEX);
-    Serial.println(F(" is not connected"));
+  Wire.begin();
+  while(i2cWrite(0x1B,0x00,false)); // Set Gyro Full Scale Range to ±250deg/s
+  while(i2cWrite(0x1C,0x00,false)); // Set Accelerometer Full Scale Range to ±2g
+  while(i2cWrite(0x19,7,false)); // Set the sample rate to 1000Hz
+  while(i2cWrite(0x1A,0x00,false)); // Disable FSYNC and set 260 Hz Acc filtering, 256 Hz Gyro filtering, 8 KHz sampling
+  while(i2cWrite(0x6B,0x01,true)); // PLL with X axis gyroscope reference and disable sleep mode 
+  
+  while(i2cRead(0x75,i2cData,1));
+  if(i2cData[0] != 0x68) { // Read "WHO_AM_I" register
+    Serial.print(F("Error reading sensor"));
     while(1);
-  }      
-  kalmanX.setAngle(180); // Set starting angle
-  kalmanY.setAngle(180);
+  }
+  
+  delay(100); // Wait for sensor to stabilize
+  
+  /* Set kalman and gyro starting angle */
+  while(i2cRead(0x3B,i2cData,6));
+  accX = ((i2cData[0] << 8) | i2cData[1]);
+  accY = ((i2cData[2] << 8) | i2cData[3]);
+  accZ = ((i2cData[4] << 8) | i2cData[5]);
+  // atan2 outputs the value of -π to π (radians) - see http://en.wikipedia.org/wiki/Atan2
+  // We then convert it to 0 to 2π and then from radians to degrees
+  accYangle = (atan2(accX,accZ)+PI)*RAD_TO_DEG;
+  accXangle = (atan2(accY,accZ)+PI)*RAD_TO_DEG;
+  
+  kalmanX.setAngle(accXangle); // Set starting angle
+  kalmanY.setAngle(accYangle);
+  gyroXangle = accXangle;
+  gyroYangle = accYangle;
+  compAngleX = accXangle;
+  compAngleY = accYangle;
+  
   timer = micros();
 }
 
 void loop() {
-  /* Update all the values */
-  uint8_t* data = i2cRead(0x3B,14);  
-  accX = ((data[0] << 8) | data[1]);
-  accY = ((data[2] << 8) | data[3]);
-  accZ = ((data[4] << 8) | data[5]);  
-  tempRaw = ((data[6] << 8) | data[7]);  
-  gyroX = ((data[8] << 8) | data[9]);
-  gyroY = ((data[10] << 8) | data[11]);
-  gyroZ = ((data[12] << 8) | data[13]);
+  /* Update all the values */  
+  while(i2cRead(0x3B,i2cData,14));
+  accX = ((i2cData[0] << 8) | i2cData[1]);
+  accY = ((i2cData[2] << 8) | i2cData[3]);
+  accZ = ((i2cData[4] << 8) | i2cData[5]);
+  tempRaw = ((i2cData[6] << 8) | i2cData[7]);  
+  gyroX = ((i2cData[8] << 8) | i2cData[9]);
+  gyroY = ((i2cData[10] << 8) | i2cData[11]);
+  gyroZ = ((i2cData[12] << 8) | i2cData[13]);
   
-  /* Calculate the angls based on the different sensors and algorithm */
+  // atan2 outputs the value of -π to π (radians) - see http://en.wikipedia.org/wiki/Atan2
+  // We then convert it to 0 to 2π and then from radians to degrees
+  accXangle = (atan2(accY,accZ)+PI)*RAD_TO_DEG;
   accYangle = (atan2(accX,accZ)+PI)*RAD_TO_DEG;
-  accXangle = (atan2(accY,accZ)+PI)*RAD_TO_DEG;    
   
   double gyroXrate = (double)gyroX/131.0;
   double gyroYrate = -((double)gyroY/131.0);
@@ -82,7 +96,7 @@ void loop() {
   //gyroYangle += kalmanY.getRate()*((double)(micros()-timer)/1000000);
   
   compAngleX = (0.93*(compAngleX+(gyroXrate*(double)(micros()-timer)/1000000)))+(0.07*accXangle); // Calculate the angle using a Complimentary filter
-  compAngleY = (0.93*(compAngleY+(gyroYrate*(double)(micros()-timer)/1000000)))+(0.07*accYangle);  
+  compAngleY = (0.93*(compAngleY+(gyroYrate*(double)(micros()-timer)/1000000)))+(0.07*accYangle);
   
   kalAngleX = kalmanX.getAngle(accXangle, gyroXrate, (double)(micros()-timer)/1000000); // Calculate the angle using a Kalman filter
   kalAngleY = kalmanY.getAngle(accYangle, gyroYrate, (double)(micros()-timer)/1000000);
@@ -90,47 +104,30 @@ void loop() {
   
   temp = ((double)tempRaw + 12412.0) / 340.0;
   
-  /* Print Data */   
+  /* Print Data */
   /*
   Serial.print(accX);Serial.print("\t");
-  Serial.print(accY);Serial.print("\t");  
-  Serial.print(accZ);Serial.print("\t");    
+  Serial.print(accY);Serial.print("\t");
+  Serial.print(accZ);Serial.print("\t");
   
-  Serial.print(gyroX);Serial.print("\t");  
-  Serial.print(gyroY); Serial.print("\t");   
-  Serial.print(gyroZ);Serial.print("\t");  
+  Serial.print(gyroX);Serial.print("\t");
+  Serial.print(gyroY); Serial.print("\t");
+  Serial.print(gyroZ);Serial.print("\t");
   */
   Serial.print(accXangle);Serial.print("\t");
-  Serial.print(accYangle);Serial.print("\t"); 
-    
   Serial.print(gyroXangle);Serial.print("\t");
-  Serial.print(gyroYangle);Serial.print("\t");
-  
   Serial.print(compAngleX);Serial.print("\t");
-  Serial.print(compAngleY); Serial.print("\t");
-  
   Serial.print(kalAngleX);Serial.print("\t");
+  
+  Serial.print("\t");
+  
+  Serial.print(accYangle);Serial.print("\t");
+  Serial.print(gyroYangle);Serial.print("\t");
+  Serial.print(compAngleY); Serial.print("\t");
   Serial.print(kalAngleY);Serial.print("\t");
   
   //Serial.print(temp);Serial.print("\t");
    
-  Serial.print("\n");
-  
-  delay(1); // The accelerometer's maximum samples rate is 1kHz
+  Serial.print("\r\n");
+  delay(1);
 }
-void i2cWrite(uint8_t registerAddress, uint8_t data){
-  Wire.beginTransmission(IMUAddress);
-  Wire.write(registerAddress);
-  Wire.write(data);
-  Wire.endTransmission(); // Send stop
-}
-uint8_t* i2cRead(uint8_t registerAddress, uint8_t nbytes) {
-  uint8_t data[nbytes];  
-  Wire.beginTransmission(IMUAddress);
-  Wire.write(registerAddress);
-  Wire.endTransmission(false); // Don't release the bus
-  Wire.requestFrom(IMUAddress, nbytes); // Send a repeated start and then release the bus after reading
-  for(uint8_t i = 0; i < nbytes; i++)
-    data[i] = Wire.read();
-  return data;
-} 
