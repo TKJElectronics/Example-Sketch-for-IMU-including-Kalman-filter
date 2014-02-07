@@ -14,7 +14,7 @@ Note that you properly need to change the serial port for it to work.
 The serial port can be changed at the following line in the code:
 
 ```
-arduino = new Serial(this, Serial.list()[0], 115200);
+serial = new Serial(this, Serial.list()[0], 115200);
 ```
 
 For more information fell free to post a question at the guide: <http://arduino.cc/forum/index.php/topic,58048.0.html> or send me an email at <kristianl@tkjelectronics.dk>.
