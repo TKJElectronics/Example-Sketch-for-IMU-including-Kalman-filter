@@ -3,7 +3,7 @@
 The code is released under the GNU General Public License.
 _________
 
-This is the firmware for the digital IMU MPU-6050 from InvenSense: <http://invensense.com/mems/gyro/mpu6050.html>.
+This is the firmware for the digital IMU featuring a ITG3205 and a ADXL345.
 
 [Kalman.h](Kalman.h) is from the Kalman filter library I wrote: <https://github.com/TKJElectronics/KalmanFilter>.
 

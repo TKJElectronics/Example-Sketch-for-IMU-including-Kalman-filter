@@ -27,7 +27,7 @@ float[] kalmanY = new float[600];
 
 void setup() {  
   size(600, 400);
-  //println(arduino.list()); // Use this to print connected serial devices
+  println(arduino.list()); // Use this to print connected serial devices
   arduino = new Serial(this, Serial.list()[0], 115200);
   arduino.bufferUntil('\n'); // Buffer until line feed
 

@@ -13,4 +13,4 @@ There is currently examples for the following IMU's:
 
 The Kalman filter used in all the examples can be found at my other repository: <https://github.com/TKJElectronics/KalmanFilter>.
 
-For more information fell free to post a question at the guide: <http://arduino.cc/forum/index.php/topic,58048.0.html> or send me an email at <a href="mailto:kristianl@tkjelectronics.dk">kristianl@tkjelectronics.dk</a>.
+For more information fell free to post a question at the guide: <http://arduino.cc/forum/index.php/topic,58048.0.html> or send me an email at <kristianl@tkjelectronics.dk>.
