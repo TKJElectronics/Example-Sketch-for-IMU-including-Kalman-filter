@@ -17,7 +17,7 @@
 
 #ifndef _Kalman_h
 #define _Kalman_h
-
+#include <math.h>
 class Kalman {
 public:
     Kalman() {
@@ -43,37 +43,45 @@ public:
         // Discrete Kalman filter time update equations - Time Update ("Predict")
         // Update xhat - Project the state ahead
         /* Step 1 */
-        rate = newRate - bias;
+        rate = newRate + bias;
         angle += dt * rate;
 
         // Update estimation error covariance - Project the error covariance ahead
         /* Step 2 */
-        P[0][0] += dt * (dt*P[1][1] - P[0][1] - P[1][0] + Q_angle);
-        P[0][1] -= dt * P[1][1];
-        P[1][0] -= dt * P[1][1];
+        P[0][0] += dt * (dt*P[1][1] + P[0][1] + P[1][0] + Q_angle);
+        P[0][1] += dt * P[1][1];
+        P[1][0] += dt * P[1][1];
         P[1][1] += Q_bias * dt;
 
         // Discrete Kalman filter measurement update equations - Measurement Update ("Correct")
         // Calculate Kalman gain - Compute the Kalman gain
         /* Step 4 */
-        S = P[0][0] + R_measure;
+        S[0][0] = P[0][0] + R_measure;
+        S[0][1] = P[0][1];
+        S[1][0] = P[1][0];
+        S[1][1] = P[1][1] + R_measure;
         /* Step 5 */
-        K[0] = P[0][0] / S;
-        K[1] = P[1][0] / S;
-
+        ss= sqrt(S[0][0]*S[1][1] + S[1][0]*S[0][1]) ;
+ 
+        K[0][0] = ss * (P[0][0]*S[1][1]-P[0][1]*S[1][0]) ;
+        K[0][1] = ss * (P[0][1]*S[0][0]-P[0][0]*S[0][1]) ;
+        K[0][1] = ss * (P[1][0]*S[1][1]-P[1][1]*S[1][0]) ;
+        K[1][1] = ss * (P[1][1]*S[0][0]-P[1][0]*S[0][1]) ;
         // Calculate angle and bias - Update estimate with measurement zk (newAngle)
         /* Step 3 */
-        y = newAngle - angle;
+        y[0] = newAngle - angle;
+        y[1] = newRate - rate;
+        
         /* Step 6 */
-        angle += K[0] * y;
-        bias += K[1] * y;
+        angle += K[0][0] * y[0]+K[0][1]*y[1];
+        bias += K[1][0] * y[0] + K[1][1]*y[1];
 
         // Calculate estimation error covariance - Update the error covariance
         /* Step 7 */
-        P[0][0] -= K[0] * P[0][0];
-        P[0][1] -= K[0] * P[0][1];
-        P[1][0] -= K[1] * P[0][0];
-        P[1][1] -= K[1] * P[0][1];
+        P[0][0] = (1-K[0][0]) * P[0][0] - K[0][1]*P[1][0];
+        P[0][1] = (1-K[0][0]) * P[0][1] - K[0][1]*P[1][1];
+        P[1][0] = (1-K[1][1]) * P[1][0] - K[1][0]*P[1][1];
+        P[1][1] = (1-K[1][1]) * P[1][1] - K[1][1]*P[1][1];
 
         return angle;
     };
@@ -100,9 +108,10 @@ private:
     double rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
 
     double P[2][2]; // Error covariance matrix - This is a 2x2 matrix
-    double K[2]; // Kalman gain - This is a 2x1 vector
-    double y; // Angle difference
-    double S; // Estimate error
+    double K[2][2]; // Kalman gain - This is a 2x1 vector
+    double y[2]; // Angle difference
+    double S[2][2]; // Estimate error
+    double ss;
 };
 
 #endif
