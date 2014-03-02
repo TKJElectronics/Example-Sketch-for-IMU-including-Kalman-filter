@@ -7,8 +7,6 @@ This is the [Processing](http://processing.org/) application I made to visualize
 
 This should be used with the [ITG3205 and ADXL345](../IMU6DOF/ITG3205_ADXL345) combo or the [LPR530AL, LY530ALH and ADXL335](../IMU6DOF/LPR530AL_LY530ALH_ADXL335) I have provided.
 
-Precompiled version for Linux, Mac OS X and Windows can be found in the folders found in this directory.
-
 Note that you properly need to change the serial port for it to work.
 
 The serial port can be changed at the following line in the code:
