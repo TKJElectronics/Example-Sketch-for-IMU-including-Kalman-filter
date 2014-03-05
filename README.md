@@ -13,4 +13,6 @@ There is currently examples for the following IMU's:
 
 The Kalman filter used in all the examples can be found at my other repository: <https://github.com/TKJElectronics/KalmanFilter>.
 
+Note that I update the [MPU-6050](IMU6DOF/MPU6050/MPU6050.ino) code more frequently, so you should take a look at that even if you are using one of the other sensors.
+
 For more information fell free to post a question at the guide: <http://arduino.cc/forum/index.php/topic,58048.0.html> or send me an email at <kristianl@tkjelectronics.dk>.
