@@ -85,7 +85,7 @@ void setup() {
 void loop() {
   /* Update all the values */
   while (i2cRead(0x3B, i2cData, 14));
-  accX = ((i2cData[0] << 8) | i2cData[1]) + 2000.0;
+  accX = ((i2cData[0] << 8) | i2cData[1]) + 2000.0; // You might need to adjust these zeroes values depending on your accelerometer
   accY = ((i2cData[2] << 8) | i2cData[3]) + 3319.84;
   accZ = ((i2cData[4] << 8) | i2cData[5]) + 664.48;
   tempRaw = (i2cData[6] << 8) | i2cData[7];
