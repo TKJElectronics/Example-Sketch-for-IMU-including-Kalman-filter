@@ -1,11 +1,11 @@
-#### Developed by Kristian Lauszus, TKJ Electronics 2012
+#### Developed by Kristian Lauszus, TKJ Electronics 2014
 
 The code is released under the GNU General Public License.
 _________
 
 This is the [Processing](http://processing.org/) application I made to visualize the data sent from the Arduino.
 
-This should be used with the [MPU-6050](../) code I have provided.
+This should be used with the [MPU-6050 and HMC5883L](../) code I have provided.
 
 Note that you properly need to change the serial port for it to work.
 
