@@ -35,6 +35,8 @@ double compAngleY = 180;
 
 unsigned long timer;
 
+uint8_t buffer[2]; // I2C buffer
+
 void setup() {
   Serial.begin(115200);
   Wire.begin();
@@ -92,16 +94,15 @@ void i2cWrite(uint8_t address, uint8_t registerAddress, uint8_t data) {
   Wire.endTransmission();
 }
 uint8_t* i2cRead(uint8_t address, uint8_t registerAddress, uint8_t nbytes) {
-  uint8_t data[nbytes];
   Wire.beginTransmission(address);
   Wire.write(registerAddress);
   Wire.endTransmission();
   Wire.beginTransmission(address);
   Wire.requestFrom(address, nbytes);
   for (uint8_t i = 0; i < nbytes; i++)
-    data[i] = Wire.read();
+    buffer[i] = Wire.read();
   Wire.endTransmission();
-  return data;
+  return buffer;
 }
 int readGyroX() { // This really measures the y-axis of the gyro
   uint8_t* data = i2cRead(gyroAddress, 0x1F, 2);
